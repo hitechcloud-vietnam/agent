@@ -1,63 +1,61 @@
-name: Build
+name: Build & Release
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         go-version: ["1.21"]
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
+
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go-version }}
-          check-latest: true
-      - name: Build ARM64
-        run: GOOS=linux GOARCH=arm64 go build -o hitechcloudpanel-linux-arm64 ./cmd/agent.go
-      - name: Build ARM
-        run: GOOS=linux GOARCH=arm go build -o hitechcloudpanel-linux-arm ./cmd/agent.go
-      - name: Build AMD64
-        run: GOOS=linux GOARCH=amd64 go build -o hitechcloudpanel-linux-amd64 ./cmd/agent.go
-      - name: Build AMD
-        run: GOOS=linux GOARCH=386 go build -o hitechcloudpanel-linux-amd ./cmd/agent.go
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./hitechcloudpanel-linux-arm64
-          asset_name: hitechcloudpanel-linux-arm64
-          asset_content_type: application/octet-stream
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Build binaries
+        run: |
+          mkdir -p dist
+
+          GOOS=linux GOARCH=arm64 go build -o dist/hitechcloudpanel-linux-arm64 ./cmd/agent.go
+          GOOS=linux GOARCH=arm go build -o dist/hitechcloudpanel-linux-arm ./cmd/agent.go
+          GOOS=linux GOARCH=amd64 go build -o dist/hitechcloudpanel-linux-amd64 ./cmd/agent.go
+          GOOS=linux GOARCH=386 go build -o dist/hitechcloudpanel-linux-386 ./cmd/agent.go
+
+      - name: Compress files (optional but recommended)
+        run: |
+          cd dist
+          tar -czf hitechcloudpanel-linux-arm64.tar.gz hitechcloudpanel-linux-arm64
+          tar -czf hitechcloudpanel-linux-arm.tar.gz hitechcloudpanel-linux-arm
+          tar -czf hitechcloudpanel-linux-amd64.tar.gz hitechcloudpanel-linux-amd64
+          tar -czf hitechcloudpanel-linux-386.tar.gz hitechcloudpanel-linux-386
+
+      - name: Create Release & Upload Assets
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./hitechcloudpanel-linux-arm
-          asset_name: hitechcloudpanel-linux-arm
-          asset_content_type: application/octet-stream
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+          files: |
+            dist/*.tar.gz
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./hitechcloudpanel-linux-amd64
-          asset_name: hitechcloudpanel-linux-amd64
-          asset_content_type: application/octet-stream
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./hitechcloudpanel-linux-amd
-          asset_name: hitechcloudpanel-linux-amd
-          asset_content_type: application/octet-stream
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
