@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/vitodeploy/agent/pkg/config"
-	"github.com/vitodeploy/agent/pkg/cpu"
-	"github.com/vitodeploy/agent/pkg/disk"
-	"github.com/vitodeploy/agent/pkg/memory"
+	"github.com/hitechcloud-vietnam/agent/pkg/config"
+	"github.com/hitechcloud-vietnam/agent/pkg/cpu"
+	"github.com/hitechcloud-vietnam/agent/pkg/disk"
+	"github.com/hitechcloud-vietnam/agent/pkg/memory"
 )
 
 type Payload struct {

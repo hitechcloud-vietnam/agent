@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const configDir = "/etc/vito-agent"
+const configDir = "/etc/hitechcloudpanel-agent"
 const configFile = "config.json"
 
 type Config struct {

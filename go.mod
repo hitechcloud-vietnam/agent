@@ -1,3 +1,3 @@
-module github.com/vitodeploy/agent
+module github.com/hitechcloud-vietnam/agent
 
 go 1.22.1
