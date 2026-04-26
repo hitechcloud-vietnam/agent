@@ -10,14 +10,24 @@ const configDir = "/etc/hitechcloudpanel-agent"
 const configFile = "config.json"
 
 type Config struct {
-	Url    string `json:"url"`
-	Secret string `json:"secret"`
+	Url         string `json:"url"`
+	Secret      string `json:"secret"`
+	LogFile     string `json:"log_file"`
+	LogToStdout bool   `json:"log_to_stdout"`
+	LogLevel    string `json:"log_level"`
+	LogMaxSize  int64  `json:"log_max_size_mb"`
+	LogMaxFiles int    `json:"log_max_files"`
 }
 
 func GetConfig() *Config {
 	config := &Config{
-		Url:    "",
-		Secret: "",
+		Url:         "",
+		Secret:      "",
+		LogFile:     "/var/log/hitechcloudpanel-agent/agent.log",
+		LogToStdout: true,
+		LogLevel:    "info",
+		LogMaxSize:  10,
+		LogMaxFiles: 5,
 	}
 
 	// Create the config directory if it doesn't exist
