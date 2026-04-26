@@ -11,16 +11,27 @@ import (
 	"github.com/hitechcloud-vietnam/agent/pkg/disk"
 	"github.com/hitechcloud-vietnam/agent/pkg/logger"
 	"github.com/hitechcloud-vietnam/agent/pkg/memory"
+	"github.com/hitechcloud-vietnam/agent/pkg/network"
 )
 
 type Payload struct {
-	Load        float64 `json:"load"`
-	DiskTotal   string  `json:"disk_total"`
-	DiskFree    string  `json:"disk_free"`
-	DiskUsed    string  `json:"disk_used"`
-	MemoryTotal string  `json:"memory_total"`
-	MemoryFree  string  `json:"memory_free"`
-	MemoryUsed  string  `json:"memory_used"`
+	Load                 float64 `json:"load"`
+	CPUUsage             float64 `json:"cpu_usage"`
+	CPUCores             int     `json:"cpu_cores"`
+	DiskTotal            string  `json:"disk_total"`
+	DiskFree             string  `json:"disk_free"`
+	DiskUsed             string  `json:"disk_used"`
+	DiskRead             string  `json:"disk_read"`
+	DiskWrite            string  `json:"disk_write"`
+	DiskTPS              string  `json:"disk_tps"`
+	IOWait               string  `json:"io_wait"`
+	MemoryTotal          string  `json:"memory_total"`
+	MemoryFree           string  `json:"memory_free"`
+	MemoryUsed           string  `json:"memory_used"`
+	NetworkUpstream      string  `json:"network_upstream"`
+	NetworkDownstream    string  `json:"network_downstream"`
+	NetworkTotalSent     string  `json:"network_total_sent"`
+	NetworkTotalReceived string  `json:"network_total_received"`
 }
 
 func main() {
@@ -37,14 +48,25 @@ func main() {
 		cpuInfo := cpu.GetCPUInfo()
 		diskInfo := disk.GetDiskInfo()
 		memoryInfo := memory.GetMemoryInfo()
+		networkInfo := network.GetNetworkInfo()
 		payload := Payload{
-			Load:        cpuInfo.Load,
-			DiskTotal:   diskInfo.Total,
-			DiskFree:    diskInfo.Free,
-			DiskUsed:    diskInfo.Used,
-			MemoryTotal: memoryInfo.Total,
-			MemoryFree:  memoryInfo.Free,
-			MemoryUsed:  memoryInfo.Used,
+			Load:                 cpuInfo.Load,
+			CPUUsage:             cpuInfo.Usage,
+			CPUCores:             cpuInfo.Cores,
+			DiskTotal:            diskInfo.Total,
+			DiskFree:             diskInfo.Free,
+			DiskUsed:             diskInfo.Used,
+			DiskRead:             diskInfo.ReadBytesPerSecond,
+			DiskWrite:            diskInfo.WriteBytesPerSecond,
+			DiskTPS:              diskInfo.TPS,
+			IOWait:               diskInfo.IOWait,
+			MemoryTotal:          memoryInfo.Total,
+			MemoryFree:           memoryInfo.Free,
+			MemoryUsed:           memoryInfo.Used,
+			NetworkUpstream:      networkInfo.UpstreamBytesPerSecond,
+			NetworkDownstream:    networkInfo.DownstreamBytesPerSecond,
+			NetworkTotalSent:     networkInfo.TotalSent,
+			NetworkTotalReceived: networkInfo.TotalReceived,
 		}
 		jsonPayload, err := json.Marshal(payload)
 		if err != nil {
