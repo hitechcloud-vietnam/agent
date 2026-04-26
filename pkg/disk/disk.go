@@ -24,7 +24,7 @@ func GetDiskInfo() DiskInfo {
 	info, err := diskUsage("/")
 	if err != nil {
 		fmt.Println("Error:", err)
-		panic(err)
+		return DiskInfo{}
 	}
 
 	read1, write1, tps1, ioWait1, total1, err := diskStats()
